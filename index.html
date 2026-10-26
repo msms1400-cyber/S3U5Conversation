@@ -1,0 +1,445 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>An International Menu - Interactive Quiz</title>  
+    <style>  
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');  
+  
+        :root {  
+            --primary: #FF7E67; /* Warm food-like color */  
+            --secondary: #FFB142;  
+            --bg-gradient: linear-gradient(135deg, #FFEFD5 0%, #FFDAB9 100%);  
+            --text-color: #2F3542;  
+            --card-bg: #FFFFFF;  
+        }  
+  
+        * {  
+            box-sizing: border-box;  
+            font-family: 'Poppins', sans-serif;  
+        }  
+  
+        body {  
+            background: var(--bg-gradient);  
+            color: var(--text-color);  
+            display: flex;  
+            justify-content: center;  
+            align-items: center;  
+            min-height: 100vh;  
+            margin: 0;  
+            padding: 20px;  
+        }  
+  
+        .container {  
+            background-color: var(--card-bg);  
+            width: 100%;  
+            max-width: 600px;  
+            border-radius: 24px;  
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);  
+            padding: 40px 30px;  
+            text-align: center;  
+            position: relative;  
+            overflow: hidden;  
+        }  
+  
+        .header {  
+            margin-bottom: 30px;  
+        }  
+  
+        h1 {  
+            color: var(--primary);  
+            font-size: 1.8rem;  
+            margin-bottom: 5px;  
+            text-transform: uppercase;  
+            letter-spacing: 1px;  
+        }  
+  
+        p.subtitle {  
+            color: #747D8C;  
+            font-size: 0.95rem;  
+            font-weight: 600;  
+        }  
+  
+        /* Quiz Styles */  
+        .question-container {  
+            display: none;  
+            animation: slideIn 0.4s ease-out forwards;  
+            opacity: 0;  
+            transform: translateX(20px);  
+        }  
+  
+        .question-container.active {  
+            display: block;  
+        }  
+  
+        .question {  
+            font-size: 1.3rem;  
+            font-weight: 600;  
+            margin-bottom: 25px;  
+            color: #2F3542;  
+        }  
+  
+        .options {  
+            display: flex;  
+            flex-direction: column;  
+            gap: 15px;  
+        }  
+  
+        .option-btn {  
+            background-color: #F1F2F6;  
+            border: 2px solid #DFE4EA;  
+            border-radius: 15px;  
+            padding: 16px;  
+            font-size: 1.05rem;  
+            cursor: pointer;  
+            transition: all 0.2s ease;  
+            text-align: left;  
+            font-weight: 600;  
+            color: #57606F;  
+        }  
+  
+        .option-btn:hover {  
+            background-color: #F8EFED;  
+            border-color: var(--primary);  
+            transform: translateY(-2px);  
+        }  
+  
+        .option-btn.selected {  
+            background-color: var(--primary);  
+            color: white;  
+            border-color: var(--primary);  
+        }  
+  
+        .next-btn {  
+            background: linear-gradient(135deg, var(--primary), var(--secondary));  
+            color: white;  
+            border: none;  
+            border-radius: 15px;  
+            padding: 16px 30px;  
+            font-size: 1.1rem;  
+            font-weight: 800;  
+            margin-top: 25px;  
+            cursor: pointer;  
+            box-shadow: 0 8px 20px rgba(255, 126, 103, 0.3);  
+            transition: transform 0.2s, box-shadow 0.2s;  
+            display: none;  
+            width: 100%;  
+            text-transform: uppercase;  
+        }  
+  
+        .next-btn:active {  
+            transform: scale(0.96);  
+        }  
+  
+        /* Result & Certificate Form */  
+        #result-screen {  
+            display: none;  
+            animation: fadeIn 0.5s ease;  
+        }  
+  
+        .score-circle {  
+            width: 130px;  
+            height: 130px;  
+            border-radius: 50%;  
+            background: linear-gradient(135deg, var(--primary), var(--secondary));  
+            color: white;  
+            display: flex;  
+            justify-content: center;  
+            align-items: center;  
+            font-size: 2.5rem;  
+            font-weight: 800;  
+            margin: 0 auto 25px;  
+            box-shadow: 0 10px 25px rgba(255, 126, 103, 0.4);  
+            border: 5px solid white;  
+            outline: 3px dashed var(--secondary);  
+        }  
+  
+        input[type="text"] {  
+            width: 100%;  
+            padding: 16px;  
+            border: 2px solid #DFE4EA;  
+            border-radius: 15px;  
+            font-size: 1.1rem;  
+            margin-bottom: 20px;  
+            outline: none;  
+            text-align: center;  
+            font-weight: 600;  
+            color: var(--text-color);  
+        }  
+  
+        input[type="text"]:focus {  
+            border-color: var(--primary);  
+            box-shadow: 0 0 0 4px rgba(255, 126, 103, 0.1);  
+        }  
+  
+        /* Certificate Styles */  
+        #certificate {  
+            display: none;  
+            background: white;  
+            border-radius: 20px;  
+            padding: 40px;  
+            text-align: center;  
+            position: relative;  
+        }  
+  
+        .cert-border {  
+            border: 3px solid var(--primary);  
+            border-radius: 15px;  
+            padding: 40px;  
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="%23FFF5F3" stroke-width="10" fill="none" opacity="0.3"/></svg>') center/cover;  
+        }  
+  
+        .cert-header {  
+            color: var(--secondary);  
+            font-size: 1.2rem;  
+            font-weight: 800;  
+            text-transform: uppercase;  
+            letter-spacing: 2px;  
+            margin-bottom: 10px;  
+        }  
+  
+        .cert-title {  
+            color: var(--primary);  
+            font-size: 2.5rem;  
+            font-weight: 800;  
+            margin-bottom: 15px;  
+            text-transform: uppercase;  
+            line-height: 1.1;  
+        }  
+  
+        .cert-student {  
+            font-size: 2rem;  
+            font-weight: 800;  
+            color: #2F3542;  
+            margin: 25px 0;  
+            border-bottom: 3px solid var(--secondary);  
+            display: inline-block;  
+            padding-bottom: 5px;  
+            min-width: 300px;  
+        }  
+  
+        .cert-footer {  
+            margin-top: 50px;  
+            display: flex;  
+            justify-content: space-between;  
+            font-size: 1rem;  
+            color: #57606F;  
+            text-align: left;  
+            font-weight: 600;  
+        }  
+  
+        .cert-footer-right {  
+            text-align: right;  
+        }  
+  
+        .print-btn {  
+            background: #2F3542;  
+            color: white;  
+            border: none;  
+            border-radius: 12px;  
+            padding: 15px 30px;  
+            font-size: 1.1rem;  
+            font-weight: 600;  
+            margin-top: 25px;  
+            cursor: pointer;  
+            box-shadow: 0 5px 15px rgba(47, 53, 66, 0.3);  
+        }  
+  
+        @keyframes slideIn {  
+            to { opacity: 1; transform: translateX(0); }  
+        }  
+  
+        @keyframes fadeIn {  
+            from { opacity: 0; }  
+            to { opacity: 1; }  
+        }  
+  
+        /* Print Specific Rules */  
+        @media print {  
+            body {  
+                background: white;  
+                margin: 0;  
+                padding: 0;  
+            }  
+            .container, .print-btn {  
+                display: none !important;  
+            }  
+            #certificate {  
+                display: block !important;  
+                border: none;  
+                width: 100%;  
+                height: 100vh;  
+                padding: 0;  
+            }  
+            .cert-border {  
+                border: 20px solid var(--primary);  
+                padding: 60px;  
+                height: 95vh;  
+                display: flex;  
+                flex-direction: column;  
+                justify-content: center;  
+            }  
+        }  
+    </style>  
+</head>  
+<body>  
+  
+    <div class="container" id="app-container">  
+        <div class="header" id="quiz-header">  
+            <h1>🍔 An International Menu</h1>  
+            <p class="subtitle">Interactive End-of-Lesson Quiz | Tr. Mohammed AlFaifi</p>  
+        </div>  
+  
+        <!-- Quiz Screen -->  
+        <div id="quiz-screen">  
+            <!-- Question 1 -->  
+            <div class="question-container active" data-q="1">  
+                <div class="question">1. What kind of meal did the mother prepare?</div>  
+                <div class="options">  
+                    <button class="option-btn" data-val="0">Fast Food</button>  
+                    <button class="option-btn" data-val="1">An International Menu</button>  
+                    <button class="option-btn" data-val="0">Only Salad</button>  
+                </div>  
+            </div>  
+  
+            <!-- Question 2 -->  
+            <div class="question-container" data-q="2">  
+                <div class="question">2. What does "I can't wait" mean?</div>  
+                <div class="options">  
+                    <button class="option-btn" data-val="1">I am very eager/excited.</button>  
+                    <button class="option-btn" data-val="0">I am tired.</button>  
+                    <button class="option-btn" data-val="0">I want to sleep.</button>  
+                </div>  
+            </div>  
+  
+            <!-- Question 3 -->  
+            <div class="question-container" data-q="3">  
+                <div class="question">3. When the mother says "Everything's under control", she means:</div>  
+                <div class="options">  
+                    <button class="option-btn" data-val="0">Everything is a mess.</button>  
+                    <button class="option-btn" data-val="0">She needs a lot of help.</button>  
+                    <button class="option-btn" data-val="1">Everything is organized.</button>  
+                </div>  
+            </div>  
+  
+            <!-- Question 4 -->  
+            <div class="question-container" data-q="4">  
+                <div class="question">4. The father said: "I've had more than enough." This means:</div>  
+                <div class="options">  
+                    <button class="option-btn" data-val="1">He can't eat any more.</button>  
+                    <button class="option-btn" data-val="0">He is still very hungry.</button>  
+                    <button class="option-btn" data-val="0">He wants more chicken.</button>  
+                </div>  
+            </div>  
+  
+            <button class="next-btn" id="next-btn">Next Question ➔</button>  
+        </div>  
+  
+        <!-- Result Screen -->  
+        <div id="result-screen">  
+            <h2 style="color: var(--primary); font-size: 2rem; margin-bottom: 15px;">Great Job! 🎉</h2>  
+            <div class="score-circle">  
+                <span id="final-score">0/4</span>  
+            </div>  
+            <p style="font-weight: 600; color: #57606F;">Type your full name to get your certificate:</p>  
+            <input type="text" id="student-name" placeholder="E.g., Khalid Abdullah">  
+            <button class="next-btn" id="generate-btn" style="display: block;">Get Certificate 🏆</button>  
+        </div>  
+    </div>  
+  
+    <!-- Printable Certificate -->  
+    <div id="certificate">  
+        <div class="cert-border">  
+            <div class="cert-header">Certificate of Excellence</div>  
+            <div class="cert-title">Outstanding Performance</div>  
+            <p style="font-size: 1.3rem; color: #57606F; margin-top: 10px;">This certificate is proudly awarded to</p>  
+            <div class="cert-student" id="cert-name-display">Student Name</div>  
+            <p style="font-size: 1.2rem; color: #2F3542; font-weight: 600;">For successfully mastering the lesson:</p>  
+            <h3 style="color: var(--primary); font-size: 1.8rem; margin: 10px 0;">An International Menu</h3>  
+            <p style="font-size: 1.2rem; font-weight: 800; color: #2F3542;">Score: <strong id="cert-score-display" style="color: var(--secondary);">0/4</strong></p>  
+              
+            <div class="cert-footer">  
+                <div>  
+                    <span style="color: var(--primary);">Prepared by:</span><br>  
+                    Tr. Mohammed AlFaifi<br>  
+                    English Department  
+                </div>  
+                <div class="cert-footer-right">  
+                    <span style="color: var(--primary);">School:</span><br>  
+                    Ashawajrah Intermediate School<br>  
+                    <span id="cert-date"></span>  
+                </div>  
+            </div>  
+        </div>  
+        <button class="print-btn" onclick="window.print()">🖨️ Print My Certificate</button>  
+    </div>  
+  
+    <script>  
+        let currentQuestionIndex = 0;  
+        let score = 0;  
+        const questions = document.querySelectorAll('.question-container');  
+        const nextBtn = document.getElementById('next-btn');  
+        let selectedValue = null;  
+  
+        // Add click events to options  
+        document.querySelectorAll('.option-btn').forEach(btn => {  
+            btn.addEventListener('click', function() {  
+                // Remove selection from siblings  
+                let siblings = this.parentNode.children;  
+                for (let sibling of siblings) {  
+                    sibling.classList.remove('selected');  
+                }  
+                this.classList.add('selected');  
+                selectedValue = parseInt(this.getAttribute('data-val'));  
+                nextBtn.style.display = 'block';  
+            });  
+        });  
+  
+        // Next button logic  
+        nextBtn.addEventListener('click', () => {  
+            if (selectedValue === 1) {  
+                score++;  
+            }  
+              
+            questions[currentQuestionIndex].classList.remove('active');  
+            currentQuestionIndex++;  
+            selectedValue = null;  
+            nextBtn.style.display = 'none';  
+  
+            if (currentQuestionIndex < questions.length) {  
+                questions[currentQuestionIndex].classList.add('active');  
+            } else {  
+                showResults();  
+            }  
+        });  
+  
+        function showResults() {  
+            document.getElementById('quiz-screen').style.display = 'none';  
+            document.getElementById('quiz-header').style.display = 'none';  
+            document.getElementById('result-screen').style.display = 'block';  
+            document.getElementById('final-score').innerText = score + '/' + questions.length;  
+        }  
+  
+        // Generate Certificate Logic  
+        document.getElementById('generate-btn').addEventListener('click', () => {  
+            const nameInput = document.getElementById('student-name').value;  
+            if (nameInput.trim() === '') {  
+                alert('Please type your name first! / الرجاء كتابة اسمك أولاً');  
+                return;  
+            }  
+  
+            document.getElementById('app-container').style.display = 'none';  
+            document.getElementById('certificate').style.display = 'block';  
+              
+            document.getElementById('cert-name-display').innerText = nameInput;  
+            document.getElementById('cert-score-display').innerText = score + '/' + questions.length;  
+              
+            // Set today's date  
+            const today = new Date();  
+            const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });  
+            document.getElementById('cert-date').innerText = 'Date: ' + dateStr;  
+        });  
+    </script>  
+</body>  
+</html> 
